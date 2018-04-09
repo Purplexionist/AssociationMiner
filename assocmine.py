@@ -25,8 +25,7 @@ def candidateGen(oldSet, k):
 	return finalSet
 
 #finds the counts of each set in out market basket dataset
-def findCounts(totLines, curSet, minSup, n):
-	count = {}
+def findCounts(totLines, curSet, minSup, n, count):
 	for line in totLines:
 		market_basket = line.split(", ")[1:]
 		market_basket[-1] = market_basket[-1].strip()
@@ -38,9 +37,8 @@ def findCounts(totLines, curSet, minSup, n):
 					count[item] += 1
 				else:
 					count[item] = 1
-	curI = list(count.keys())
 	fTemp = set()
-	for i in curI:
+	for i in curSet:
 		if count[i]/n > minSup:
 			fTemp.add(i)
 	return fTemp
@@ -60,18 +58,18 @@ for line in lines:
 	market_basket = line.split(", ")[1:]
 	market_basket[-1] = market_basket[-1].strip()
 	for item in market_basket:
+		item = tuple([item])
 		if item in curCount:
 			curCount[item] += 1
 		else:
 			curCount[item] = 1
 
 I = list(curCount.keys())
-
 #first run through of T
 F1 = set()
 for i in I:
 	if curCount[i]/n > minSup:
-		F1.add(tuple([i]))
+		F1.add(i)
 oldSet = F1
 F = []
 F.append(F1)
@@ -87,16 +85,13 @@ tempSet = set()
 #main loop of the program
 while len(oldSet) > 0:
 	tempSet = candidateGen(oldSet, k)
-	supportReduce = findCounts(lines, tempSet, minSup, n)
+	supportReduce = findCounts(lines, tempSet, minSup, n, curCount)
 	if len(supportReduce) > 0:
 		F.append(supportReduce)
 		k += 1
 	oldSet = supportReduce
 print(F)
 
-
-
-
-
-
+#curCount is the the dictionary that contains tuples of strings for keys and has integer for values
+#use curCount when computing the association rules
 
