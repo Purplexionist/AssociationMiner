@@ -43,7 +43,24 @@ def findCounts(totLines, curSet, minSup, n, count):
 			fTemp.add(i)
 	return fTemp
 			
-					
+#lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
+def confidence(lhs,rhs,totLines,counts):
+	unionCount = 0
+	lhsCount = 0
+	for line in totLines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		market_basket = set(market_basket)
+
+		s = lhs.union(rhs)
+		if set(s) <= market_basket:
+		    #add tuples to preserve order of tuple and not create keys with different ordering
+			unionCount += 1
+		if lhs <= market_basket:
+			lhsCount += 1
+	return unionCount/lhsCount				
+
+
 
 f = open("out1.csv", "r")
 lines = f.readlines()
@@ -51,6 +68,7 @@ f.close()
 n = len(lines)
 curCount = {}
 minSup = 0.05
+minConf = 0.7
 k = 1
 
 #generate T, the market basket dataset
@@ -73,12 +91,7 @@ for i in I:
 oldSet = F1
 F = []
 F.append(F1)
-#firstGen = candidateGen(oldSet, k)
-#newF = findCounts(lines, firstGen, minSup, n)
-#F.append(newF)
-#k += 1
-#secondGen = candidateGen(newF, k)
-#finalF = findCounts(lines, secondGen, minSup, n)
+
 tempSet = set()
 
 
@@ -90,8 +103,64 @@ while len(oldSet) > 0:
 		F.append(supportReduce)
 		k += 1
 	oldSet = supportReduce
-print(F)
 
 #curCount is the the dictionary that contains tuples of strings for keys and has integer for values
 #use curCount when computing the association rules
+
+
+#=============================GenRules============================
+#lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
+def confidence(lhs,rhs,totLines,counts):
+	unionCount = 0
+	lhsCount = 0
+	s = lhs.union(rhs)
+	for line in totLines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		market_basket = set(market_basket)
+
+		if set(s) <= market_basket:
+		    #add tuples to preserve order of tuple and not create keys with different ordering
+			unionCount += 1
+		if lhs <= market_basket:
+			lhsCount += 1
+	return unionCount/lhsCount	
+
+def support(lhs,rhs,totLines,counts,n):
+	count = 0
+	s = lhs.union(rhs)
+	for line in totLines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		market_basket = set(market_basket)
+
+		if set(s) <= market_basket:
+		    #add tuples to preserve order of tuple and not create keys with different ordering
+			count += 1
+	return count/n
+
+def maximalSkylineCheck(s, maxSkylines):
+	for m in maxSkylines:
+		if s < m:
+			return True
+	return False
+
+maxSkylines = []
+for x in range(len(F)-1, -1, -1):
+	Fx = F[x]
+	for f in Fx:
+		if len(f) >=2:
+			#print(list(f))
+			for s in list(f):
+				
+				lhs = set(f) - {s}
+				rhs = {s}
+				if maximalSkylineCheck(set(f), maxSkylines):
+					continue
+				conf = confidence(lhs,rhs,lines,curCount)
+				maxSkylines.append(set(f))
+				if conf > minConf:
+					print("Rule", len(maxSkylines), lhs,"==>",rhs,"Support:",support(lhs,rhs,lines,curCount,n), "Confidence:",conf)
+		else:
+			continue
 
