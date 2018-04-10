@@ -1,3 +1,9 @@
+# Course:      CSC 466
+# Instructor:  Dekhtyar
+# Assignment:  Mining Association Rules
+# Term:        Spring 2018
+import sys
+
 #generates candidates for screening
 def candidateGen(oldSet, k):
 	finalSet = set()
@@ -42,7 +48,8 @@ def findCounts(totLines, curSet, minSup, n, count):
 		if count[i]/n > minSup:
 			fTemp.add(i)
 	return fTemp
-			
+
+
 #lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
 def confidence(lhs,rhs,totLines,counts):
 	unionCount = 0
@@ -58,51 +65,86 @@ def confidence(lhs,rhs,totLines,counts):
 			unionCount += 1
 		if lhs <= market_basket:
 			lhsCount += 1
-	return unionCount/lhsCount				
+	return unionCount/lhsCount
 
 
+def main ():
+	if len(sys.argv) < 2:
+		print("Usage: python3 assoc.py <file name>")
+		sys.exit(0)
 
-f = open("out1.csv", "r")
-lines = f.readlines()
-f.close()
-n = len(lines)
-curCount = {}
-minSup = 0.05
-minConf = 0.7
-k = 1
+	f = open(sys.argv[1], "r")
+	lines = f.readlines()
+	f.close()
+	n = len(lines)
+	curCount = {}
+	minSup = 0.05
+	minConf = 0.7
+	k = 1
 
-#generate T, the market basket dataset
-for line in lines:
-	market_basket = line.split(", ")[1:]
-	market_basket[-1] = market_basket[-1].strip()
-	for item in market_basket:
-		item = tuple([item])
-		if item in curCount:
-			curCount[item] += 1
-		else:
-			curCount[item] = 1
+	#generate T, the market basket dataset
+	for line in lines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		for item in market_basket:
+			item = tuple([item])
+			if item in curCount:
+				curCount[item] += 1
+			else:
+				curCount[item] = 1
 
-I = list(curCount.keys())
-#first run through of T
-F1 = set()
-for i in I:
-	if curCount[i]/n > minSup:
-		F1.add(i)
-oldSet = F1
-F = []
-F.append(F1)
+	I = list(curCount.keys())
+	#first run through of T
+	F1 = set()
+	for i in I:
+		if curCount[i]/n > minSup:
+			F1.add(i)
+	oldSet = F1
+	F = []
+	F.append(F1)
 
-tempSet = set()
+	tempSet = set()
+
+	#main loop of the program
+	while len(oldSet) > 0:
+		tempSet = candidateGen(oldSet, k)
+		supportReduce = findCounts(lines, tempSet, minSup, n, curCount)
+		if len(supportReduce) > 0:
+			F.append(supportReduce)
+			k += 1
+		oldSet = supportReduce
+
+	maxSkylines = []
+	r = 0
+	for x in range(len(F)-1, -1, -1):
+		Fx = F[x]
+		for f in Fx:
+			maxSkylines.append(set(f))
+			f = tuple(sorted(tuple(f)))
+			if len(f) >=2:
+
+				for s in list(f):
+
+					lhs = set(f) - {s}
+					rhs = {s}
+
+					if maximalSkylineCheck(set(f), maxSkylines):
+						continue
+
+					conf = curCount[f]/curCount[tuple(sorted(tuple(lhs)))]
+					supp = curCount[f]/n
+
+					r += 1
+
+					if conf > minConf:
+						print("Rule", r, lhs,"==>",rhs,"Support:", supp, "Confidence: %.2f" % conf)
+			else:
+				continue
+
+	print(maxSkylines)
+	return
 
 
-#main loop of the program
-while len(oldSet) > 0:
-	tempSet = candidateGen(oldSet, k)
-	supportReduce = findCounts(lines, tempSet, minSup, n, curCount)
-	if len(supportReduce) > 0:
-		F.append(supportReduce)
-		k += 1
-	oldSet = supportReduce
 
 #curCount is the the dictionary that contains tuples of strings for keys and has integer for values
 #use curCount when computing the association rules
@@ -110,6 +152,35 @@ while len(oldSet) > 0:
 
 #=============================GenRules============================
 #lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
+def confidence(lhs,rhs,totLines,counts):
+	unionCount = 0
+	lhsCount = 0
+	s = lhs.union(rhs)
+	for line in totLines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		market_basket = set(market_basket)
+
+		if set(s) <= market_basket:
+			#add tuples to preserve order of tuple and not create keys with different ordering
+			unionCount += 1
+		if lhs <= market_basket:
+			lhsCount += 1
+	return unionCount/lhsCount
+
+def support(lhs,rhs,totLines,counts,n):
+	count = 0
+	s = lhs.union(rhs)
+	for line in totLines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		market_basket = set(market_basket)
+
+		if set(s) <= market_basket:
+			#add tuples to preserve order of tuple and not create keys with different ordering
+			count += 1
+	return count/n
+
 
 def maximalSkylineCheck(s, maxSkylines):
 	for m in maxSkylines:
@@ -118,31 +189,5 @@ def maximalSkylineCheck(s, maxSkylines):
 	return False
 
 
-maxSkylines = []
-r = 0
-for x in range(len(F)-1, -1, -1):
-	Fx = F[x]
-	for f in Fx:
-		maxSkylines.append(set(f))
-		f = tuple(sorted(tuple(f)))
-		if len(f) >=2:
-
-			for s in list(f):
-				
-				lhs = set(f) - {s}
-				rhs = {s}
-
-				if maximalSkylineCheck(set(f), maxSkylines):
-					continue
-
-				conf = curCount[f]/curCount[tuple(sorted(tuple(lhs)))]
-				supp = curCount[f]/n
-
-				r += 1
-
-				if conf > minConf:
-					print("Rule", r, lhs,"==>",rhs,"Support:", supp, "Confidence:",conf)
-		else:
-			continue
-
-print(maxSkylines)
+if __name__ == "__main__":
+	main()
