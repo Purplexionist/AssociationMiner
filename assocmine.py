@@ -110,34 +110,6 @@ while len(oldSet) > 0:
 
 #=============================GenRules============================
 #lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
-def confidence(lhs,rhs,totLines,counts):
-	unionCount = 0
-	lhsCount = 0
-	s = lhs.union(rhs)
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-
-		if set(s) <= market_basket:
-		    #add tuples to preserve order of tuple and not create keys with different ordering
-			unionCount += 1
-		if lhs <= market_basket:
-			lhsCount += 1
-	return unionCount/lhsCount	
-
-def support(lhs,rhs,totLines,counts,n):
-	count = 0
-	s = lhs.union(rhs)
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-
-		if set(s) <= market_basket:
-		    #add tuples to preserve order of tuple and not create keys with different ordering
-			count += 1
-	return count/n
 
 def maximalSkylineCheck(s, maxSkylines):
 	for m in maxSkylines:
@@ -145,22 +117,32 @@ def maximalSkylineCheck(s, maxSkylines):
 			return True
 	return False
 
+
 maxSkylines = []
+r = 0
 for x in range(len(F)-1, -1, -1):
 	Fx = F[x]
 	for f in Fx:
+		maxSkylines.append(set(f))
+		f = tuple(sorted(tuple(f)))
 		if len(f) >=2:
-			#print(list(f))
+
 			for s in list(f):
 				
 				lhs = set(f) - {s}
 				rhs = {s}
+
 				if maximalSkylineCheck(set(f), maxSkylines):
 					continue
-				conf = confidence(lhs,rhs,lines,curCount)
-				maxSkylines.append(set(f))
+
+				conf = curCount[f]/curCount[tuple(sorted(tuple(lhs)))]
+				supp = curCount[f]/n
+
+				r += 1
+
 				if conf > minConf:
-					print("Rule", len(maxSkylines), lhs,"==>",rhs,"Support:",support(lhs,rhs,lines,curCount,n), "Confidence:",conf)
+					print("Rule", r, lhs,"==>",rhs,"Support:", supp, "Confidence:",conf)
 		else:
 			continue
 
+print(maxSkylines)
