@@ -4,68 +4,6 @@
 # Term:        Spring 2018
 import sys
 
-#generates candidates for screening
-def candidateGen(oldSet, k):
-	finalSet = set()
-	oldList = list(tuple(oldSet))
-	for i in range(0,len(oldList)-1):
-		for j in range(i+1, len(oldList)):
-			A = set(oldList[i])
-			B = set(oldList[j])
-			if len(A.union(B)) == k + 1:
-				candidateUnion = A.union(B)
-				flag = True
-				for el in candidateUnion:
-					#copy of candidateUnion, don't want to destroy the original
-					test = set(candidateUnion)
-					el = set([el])
-					test = test - el
-					test = tuple(sorted(tuple(test)))
-					if(test not in  oldSet):
-						flag = False
-						break
-				if flag:
-					#add sorted tuple to preserve ordering and eliminate repeats
-					#PYTHON PRO ALEX: can you sort a tuple w/o returning a list?
-					finalSet.add(tuple(sorted(tuple(candidateUnion))))
-	return finalSet
-
-#finds the counts of each set in out market basket dataset
-def findCounts(totLines, curSet, minSup, n, count):
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-		for item in curSet:
-			if set(item) <= market_basket:
-			    #add tuples to preserve order of tuple and not create keys with different ordering
-				if item in count:
-					count[item] += 1
-				else:
-					count[item] = 1
-	fTemp = set()
-	for i in curSet:
-		if count[i]/n > minSup:
-			fTemp.add(i)
-	return fTemp
-
-
-#lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
-def confidence(lhs,rhs,totLines,counts):
-	unionCount = 0
-	lhsCount = 0
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-
-		s = lhs.union(rhs)
-		if set(s) <= market_basket:
-		    #add tuples to preserve order of tuple and not create keys with different ordering
-			unionCount += 1
-		if lhs <= market_basket:
-			lhsCount += 1
-	return unionCount/lhsCount
 
 
 def main ():
@@ -145,43 +83,53 @@ def main ():
 	return
 
 
+#==========================FrequentSubsets========================
+#generates candidates for screening
+def candidateGen(oldSet, k):
+	finalSet = set()
+	oldList = list(tuple(oldSet))
+	for i in range(0,len(oldList)-1):
+		for j in range(i+1, len(oldList)):
+			A = set(oldList[i])
+			B = set(oldList[j])
+			if len(A.union(B)) == k + 1:
+				candidateUnion = A.union(B)
+				flag = True
+				for el in candidateUnion:
+					#copy of candidateUnion, don't want to destroy the original
+					test = set(candidateUnion)
+					el = set([el])
+					test = test - el
+					test = tuple(sorted(tuple(test)))
+					if(test not in  oldSet):
+						flag = False
+						break
+				if flag:
+					#add sorted tuple to preserve ordering and eliminate repeats
+					#PYTHON PRO ALEX: can you sort a tuple w/o returning a list?
+					finalSet.add(tuple(sorted(tuple(candidateUnion))))
+	return finalSet
 
-#curCount is the the dictionary that contains tuples of strings for keys and has integer for values
-#use curCount when computing the association rules
-
+#finds the counts of each set in out market basket dataset
+def findCounts(totLines, curSet, minSup, n, count):
+	for line in totLines:
+		market_basket = line.split(", ")[1:]
+		market_basket[-1] = market_basket[-1].strip()
+		market_basket = set(market_basket)
+		for item in curSet:
+			if set(item) <= market_basket:
+			    #add tuples to preserve order of tuple and not create keys with different ordering
+				if item in count:
+					count[item] += 1
+				else:
+					count[item] = 1
+	fTemp = set()
+	for i in curSet:
+		if count[i]/n > minSup:
+			fTemp.add(i)
+	return fTemp
 
 #=============================GenRules============================
-#lhs is the left hand itemset of the association, and rhs is the right hand set (only one item in this lab) of the association.
-def confidence(lhs,rhs,totLines,counts):
-	unionCount = 0
-	lhsCount = 0
-	s = lhs.union(rhs)
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-
-		if set(s) <= market_basket:
-			#add tuples to preserve order of tuple and not create keys with different ordering
-			unionCount += 1
-		if lhs <= market_basket:
-			lhsCount += 1
-	return unionCount/lhsCount
-
-def support(lhs,rhs,totLines,counts,n):
-	count = 0
-	s = lhs.union(rhs)
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-
-		if set(s) <= market_basket:
-			#add tuples to preserve order of tuple and not create keys with different ordering
-			count += 1
-	return count/n
-
-
 def maximalSkylineCheck(s, maxSkylines):
 	for m in maxSkylines:
 		if s < m:
