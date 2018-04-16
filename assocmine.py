@@ -4,11 +4,9 @@
 # Term:        Spring 2018
 import sys
 
-
-
 def main ():
-	if len(sys.argv) < 2:
-		print("Usage: python3 assoc.py <file name>")
+	if len(sys.argv) < 4:
+		print("Usage: python3 assocmine.py [file name] [minSup] [minConf]")
 		sys.exit(0)
 
 	f = open(sys.argv[1], "r")
@@ -16,8 +14,8 @@ def main ():
 	f.close()
 	n = len(lines)
 	curCount = {}
-	minSup = 0.05
-	minConf = 0.7
+	minSup = float(sys.argv[2]) #around .05
+	minConf = float(sys.argv[3]) #around .7
 	k = 1
 
 	#generate T, the market basket dataset
@@ -75,7 +73,7 @@ def main ():
 					r += 1
 
 					if conf > minConf:
-						print("Rule", r, lhs,"==>",rhs,"Support:", supp, "Confidence: %.2f" % conf)
+						print("Rule", r, lhs,"-->",rhs,"Support:", supp, "Confidence: %.3f" % conf)
 			else:
 				continue
 
@@ -125,8 +123,10 @@ def findCounts(totLines, curSet, minSup, n, count):
 					count[item] = 1
 	fTemp = set()
 	for i in curSet:
-		if count[i]/n > minSup:
-			fTemp.add(i)
+		if i in count:
+			if (count[i]/n) > minSup:
+				fTemp.add(i)
+	print(fTemp)
 	return fTemp
 
 #=============================GenRules============================
