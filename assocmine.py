@@ -13,6 +13,8 @@ def main ():
 	lines = f.readlines()
 	f.close()
 	n = len(lines)
+	if(sys.argv[1] == "factor_baskets_sparse.csv"):
+		n = n - 1
 	curCount = {}
 	minSup = float(sys.argv[2]) #around .05
 	minConf = float(sys.argv[3]) #around .7
@@ -50,8 +52,6 @@ def main ():
 					curCount[temp] += 1
 				else:
 					curCount[temp] = 1
-
-
 	I = list(curCount.keys())
 	#first run through of T
 	F1 = set()
@@ -69,7 +69,6 @@ def main ():
 		print("here boys")
 		tempSet = candidateGen(oldSet, k)
 		supportReduce = findCounts(lines, tempSet, minSup, n, curCount, sys.argv)
-		print(supportReduce)
 		if len(supportReduce) > 0:
 			F.append(supportReduce)
 			k += 1
