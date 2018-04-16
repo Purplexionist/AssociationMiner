@@ -85,12 +85,26 @@ def main ():
 					if conf > minConf:
 						if len(sys.argv) > 4:
 							if(sys.argv[4] == "goods.csv"):
-		
-						print("Rule", r, lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+								finLeft = ""
+								for myLHS in tuple(lhs):
+									finLeft += bakeryCount[tuple([myLHS])] + ", "
+								finLeft = finLeft[:-2]
+								finRight = bakeryCount[tuple(rhs)]
+								print("Rule", r, finLeft,"-->",finRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+						else:
+							print("Rule", r, lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
 			else:
 				continue
-
-	print(maxSkylines)
+	if len(sys.argv) > 4:
+		if(sys.argv[4] == "goods.csv"):
+			for maxSet in maxSkylines:
+				print("{", end = "")
+				contents = ""
+				for tup in maxSet:
+					contents += bakeryCount[tuple([tup])] + ", "
+				print(contents[:-2] + "}")
+	else:
+		print(maxSkylines)
 	return
 
 
