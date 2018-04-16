@@ -29,15 +29,28 @@ def main ():
 
 
 	#generate T, the market basket dataset
-	for line in lines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		for item in market_basket:
-			item = tuple([item])
-			if item in curCount:
-				curCount[item] += 1
-			else:
-				curCount[item] = 1
+	if(sys.argv[1] != "factor_baskets_sparse.csv"):
+		for line in lines:
+			market_basket = line.split(", ")[1:]
+			market_basket[-1] = market_basket[-1].strip()
+			for item in market_basket:
+				item = tuple([item])
+				if item in curCount:
+					curCount[item] += 1
+				else:
+					curCount[item] = 1
+	else:
+		for line in lines[1:]:
+			market_basket = line.split(",")[1:]
+			market_basket[-1] = market_basket[-1].strip()
+			for i in range(0, len(market_basket), 2):
+				temp = market_basket[i]
+				temp = tuple([temp])
+				if temp in curCount:
+					curCount[temp] += 1
+				else:
+					curCount[temp] = 1
+
 
 	I = list(curCount.keys())
 	#first run through of T
@@ -53,13 +66,16 @@ def main ():
 
 	#main loop of the program
 	while len(oldSet) > 0:
+		print("here boys")
 		tempSet = candidateGen(oldSet, k)
-		supportReduce = findCounts(lines, tempSet, minSup, n, curCount)
+		supportReduce = findCounts(lines, tempSet, minSup, n, curCount, sys.argv)
+		print(supportReduce)
 		if len(supportReduce) > 0:
 			F.append(supportReduce)
 			k += 1
 		oldSet = supportReduce
-
+	if(sys.argv[1] == "factor_baskets_sparse.csv"):
+		return
 	maxSkylines = []
 	r = 0
 	for x in range(len(F)-1, -1, -1):
@@ -136,18 +152,34 @@ def candidateGen(oldSet, k):
 	return finalSet
 
 #finds the counts of each set in out market basket dataset
-def findCounts(totLines, curSet, minSup, n, count):
-	for line in totLines:
-		market_basket = line.split(", ")[1:]
-		market_basket[-1] = market_basket[-1].strip()
-		market_basket = set(market_basket)
-		for item in curSet:
-			if set(item) <= market_basket:
-			    #add tuples to preserve order of tuple and not create keys with different ordering
-				if item in count:
-					count[item] += 1
-				else:
-					count[item] = 1
+def findCounts(totLines, curSet, minSup, n, count, sysArgv):
+	if(sysArgv[1] != "factor_baskets_sparse.csv"):
+		for line in totLines:
+			market_basket = line.split(", ")[1:]
+			market_basket[-1] = market_basket[-1].strip()
+			market_basket = set(market_basket)
+			for item in curSet:
+				if set(item) <= market_basket:
+				    #add tuples to preserve order of tuple and not create keys with different ordering
+					if item in count:
+						count[item] += 1
+					else:
+						count[item] = 1
+	else:
+		for line in totLines[1:]:
+			market_basket = line.split(",")[1:]
+			market_basket[-1] = market_basket[-1].strip()
+			ansSet = []
+			for i in range(0, len(market_basket), 2):
+				ansSet.append(market_basket[i])
+			ansSet = set(ansSet)
+			for item in curSet:
+				if set(item) <= ansSet:
+					if item in count:
+						count[item] += 1
+					else:
+						count[item] = 1
+
 	fTemp = set()
 	for i in curSet:
 		if i in count:
