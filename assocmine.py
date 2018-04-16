@@ -17,8 +17,16 @@ def main ():
 	minSup = float(sys.argv[2]) #around .05
 	minConf = float(sys.argv[3]) #around .7
 	k = 1
-
+	bakeryCount = {}
 	if len(sys.argv) > 4:
+		if(sys.argv[4] == "goods.csv"):
+			j = open(sys.argv[4], "r")
+			goodLines = j.readlines()
+			for line in goodLines[1:]:
+				market_basket = line.split(",")
+				bakeryCount[tuple([market_basket[0]])] = market_basket[2].replace("\"", "").replace("'","") + " " + market_basket[1].replace("\"", "").replace("'","")
+			j.close()
+
 
 	#generate T, the market basket dataset
 	for line in lines:
@@ -75,6 +83,9 @@ def main ():
 					r += 1
 
 					if conf > minConf:
+						if len(sys.argv) > 4:
+							if(sys.argv[4] == "goods.csv"):
+		
 						print("Rule", r, lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
 			else:
 				continue
