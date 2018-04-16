@@ -6,7 +6,7 @@ import sys
 
 def main ():
 	if len(sys.argv) < 4:
-		print("Usage: python3 assocmine.py [file name] [minSup] [minConf]")
+		print("Usage: python3 assocmine.py [file] [minSup] [minConf] <etc>")
 		sys.exit(0)
 
 	f = open(sys.argv[1], "r")
@@ -17,6 +17,8 @@ def main ():
 	minSup = float(sys.argv[2]) #around .05
 	minConf = float(sys.argv[3]) #around .7
 	k = 1
+
+	if len(sys.argv) > 4:
 
 	#generate T, the market basket dataset
 	for line in lines:
@@ -55,7 +57,10 @@ def main ():
 	for x in range(len(F)-1, -1, -1):
 		Fx = F[x]
 		for f in Fx:
-			maxSkylines.append(set(f))
+			if not maximalSkylineCheck(set(f), maxSkylines):
+				maxSkylines.append(set(f))
+			else:
+				continue
 			f = tuple(sorted(tuple(f)))
 			if len(f) >=2:
 
@@ -64,16 +69,13 @@ def main ():
 					lhs = set(f) - {s}
 					rhs = {s}
 
-					if maximalSkylineCheck(set(f), maxSkylines):
-						continue
-
 					conf = curCount[f]/curCount[tuple(sorted(tuple(lhs)))]
 					supp = curCount[f]/n
 
 					r += 1
 
 					if conf > minConf:
-						print("Rule", r, lhs,"-->",rhs,"Support:", supp, "Confidence: %.3f" % conf)
+						print("Rule", r, lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
 			else:
 				continue
 
@@ -126,7 +128,6 @@ def findCounts(totLines, curSet, minSup, n, count):
 		if i in count:
 			if (count[i]/n) > minSup:
 				fTemp.add(i)
-	print(fTemp)
 	return fTemp
 
 #=============================GenRules============================
