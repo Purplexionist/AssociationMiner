@@ -21,6 +21,7 @@ def main ():
 	k = 1
 	bakeryCount = {}
 	geneList = {}
+	bingoCount = {}
 	if len(sys.argv) > 4:
 		if(sys.argv[4] == "goods.csv"):
 			j = open(sys.argv[4], "r")
@@ -35,7 +36,14 @@ def main ():
 			for line in goodLines[1:]:
 				gene = line.split(",")
 				geneList[tuple([gene[0]])] = gene[1][:-1]
-
+		elif (sys.argv[4] == 'authorlist.psv'):
+			bingo = open(sys.argv[4], "r")
+			binLines = bingo.readlines()
+			for line in binLines:
+				t = line.replace('\n', '').split(" | ")
+				#print(type(t[0]))
+				bingoCount[tuple([t[0]])] = t[1]
+			bingo.close()
 
 	#generate T, the market basket dataset
 	if(sys.argv[1] != "factor_baskets_sparse.csv"):
@@ -139,6 +147,15 @@ def main ():
 								finLeft = finLeft[:-2]
 								finRight = bakeryCount[tuple(rhs)]
 								print("Rule", r,":", finLeft,"-->",finRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+
+							if (sys.argv[4] == "authorlist.psv"):
+								findLeft = ""
+								for leftSides in tuple(lhs):
+									findLeft += bingoCount[tuple([leftSides])] + "; "
+								findLeft = findLeft[:-2]
+								findRight = bingoCount[tuple(rhs)]
+								print("Rule", r,":", findLeft,"-->",findRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+
 						else:
 							print("Rule", r,":", lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
 			else:
