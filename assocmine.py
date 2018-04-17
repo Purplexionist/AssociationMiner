@@ -55,9 +55,12 @@ def main ():
 	I = list(curCount.keys())
 	#first run through of T
 	F1 = set()
+	Fsave = set()
 	for i in I:
-		if curCount[i]/n > minSup:
+		if curCount[i]/n > minSup and curCount[i] < 46:
 			F1.add(i)
+		elif curCount[i]/n > minSup and curCount[i] == 46:
+			Fsave.add(i[0])
 	oldSet = F1
 	F = []
 	F.append(F1)
@@ -66,7 +69,6 @@ def main ():
 
 	#main loop of the program
 	while len(oldSet) > 0:
-		print("here boys")
 		tempSet = candidateGen(oldSet, k)
 		supportReduce = findCounts(lines, tempSet, minSup, n, curCount, sys.argv)
 		if len(supportReduce) > 0:
@@ -74,6 +76,18 @@ def main ():
 			k += 1
 		oldSet = supportReduce
 	if(sys.argv[1] == "factor_baskets_sparse.csv"):
+		bestSet = []
+		for x in range(len(F) - 1, -1, -1):
+			Fx = F[x]
+			for f in Fx:
+				if not maximalSkylineCheck(set(f), bestSet):
+					bestSet.append(set(f))
+		for t in bestSet:
+			print(t, end="")
+			counted = curCount[tuple(sorted(tuple(t)))]
+			print(" Support: %.3f" % (counted/46))
+		print("All frequent item sets also contain: ", end="")
+		print(Fsave)
 		return
 	maxSkylines = []
 	r = 0
