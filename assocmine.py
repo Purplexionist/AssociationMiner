@@ -20,6 +20,7 @@ def main ():
 	minConf = float(sys.argv[3]) #around .7
 	k = 1
 	bakeryCount = {}
+	geneList = {}
 	if len(sys.argv) > 4:
 		if(sys.argv[4] == "goods.csv"):
 			j = open(sys.argv[4], "r")
@@ -28,6 +29,12 @@ def main ():
 				market_basket = line.split(",")
 				bakeryCount[tuple([market_basket[0]])] = market_basket[2].replace("\"", "").replace("'","") + " " + market_basket[1].replace("\"", "").replace("'","")
 			j.close()
+		elif(sys.argv[4] == "factors.csv"):
+			j = open(sys.argv[4], "r")
+			goodLines = j.readlines()
+			for line in goodLines[1:]:
+				gene = line.split(",")
+				geneList[tuple([gene[0]])] = gene[1][:-1]
 
 
 	#generate T, the market basket dataset
@@ -57,9 +64,9 @@ def main ():
 	F1 = set()
 	Fsave = set()
 	for i in I:
-		if curCount[i]/n > minSup and curCount[i] < 46:
+		if curCount[i]/n > minSup and (curCount[i] < 46 or sys.argv[1] != "factor_baskets_sparse.csv"):
 			F1.add(i)
-		elif curCount[i]/n > minSup and curCount[i] == 46:
+		elif curCount[i]/n > minSup and curCount[i] == 46 and sys.argv[1] == "factor_baskets_sparse.csv":
 			Fsave.add(i[0])
 	oldSet = F1
 	F = []
@@ -82,13 +89,26 @@ def main ():
 			for f in Fx:
 				if not maximalSkylineCheck(set(f), bestSet):
 					bestSet.append(set(f))
+		geneIter = 1
 		for t in bestSet:
-			print(t, end="")
+			print("Skyline Item Set %d: " % geneIter, end="")
+			geneIter += 1
+			newT = list(t)
+			niceName = ""
+			for num in newT:
+				niceName += geneList[tuple([num])] + ", "
+			niceName = niceName[:-2]
+			print("{" + niceName + "}", end="")
 			counted = curCount[tuple(sorted(tuple(t)))]
 			print(" Support: %.3f" % (counted/46))
 		print("All frequent item sets also contain: ", end="")
-		print(Fsave)
+		finSetName = ""
+		for g in list(Fsave):
+			finSetName += geneList[tuple([g])] + ", "
+		finSetName = finSetName[:-2]
+		print(finSetName)
 		return
+
 	maxSkylines = []
 	r = 0
 	for x in range(len(F)-1, -1, -1):
@@ -109,9 +129,8 @@ def main ():
 					conf = curCount[f]/curCount[tuple(sorted(tuple(lhs)))]
 					supp = curCount[f]/n
 
-					r += 1
-
 					if conf > minConf:
+						r += 1
 						if len(sys.argv) > 4:
 							if(sys.argv[4] == "goods.csv"):
 								finLeft = ""
@@ -119,19 +138,24 @@ def main ():
 									finLeft += bakeryCount[tuple([myLHS])] + ", "
 								finLeft = finLeft[:-2]
 								finRight = bakeryCount[tuple(rhs)]
-								print("Rule", r, finLeft,"-->",finRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+								print("Rule", r,":", finLeft,"-->",finRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
 						else:
-							print("Rule", r, lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+							print("Rule", r,":", lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
 			else:
 				continue
+	printIter = 1;
 	if len(sys.argv) > 4:
 		if(sys.argv[4] == "goods.csv"):
 			for maxSet in maxSkylines:
+				print("Skyline Item Set %d: " % printIter, end="")
+				printIter += 1
 				print("{", end = "")
 				contents = ""
 				for tup in maxSet:
 					contents += bakeryCount[tuple([tup])] + ", "
-				print(contents[:-2] + "}")
+				print(contents[:-2] + "} ", end="")
+				thisSup = curCount[tuple(sorted(tuple(maxSet)))]/n
+				print("Support: %.3f" % thisSup)
 	else:
 		print(maxSkylines)
 	return
