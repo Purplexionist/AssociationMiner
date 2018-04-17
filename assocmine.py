@@ -6,7 +6,7 @@ import sys
 
 def main ():
 	if len(sys.argv) < 4:
-		print("Usage: python3 assocmine.py [file] [minSup] [minConf] <etc>")
+		out.write("Usage: python3 assocmine.py [file] [minSup] [minConf] <etc>")
 		sys.exit(0)
 
 	f = open(sys.argv[1], "r")
@@ -23,6 +23,8 @@ def main ():
 	geneList = {}
 	bingoCount = {}
 	if len(sys.argv) > 4:
+		outputName = str(sys.argv[4][:-4] + ".out")
+		out = open(outputName, "w")
 		if(sys.argv[4] == "goods.csv"):
 			j = open(sys.argv[4], "r")
 			goodLines = j.readlines()
@@ -41,7 +43,7 @@ def main ():
 			binLines = bingo.readlines()
 			for line in binLines:
 				t = line.replace('\n', '').split(" | ")
-				#print(type(t[0]))
+				#out.write(type(t[0]))
 				bingoCount[tuple([t[0]])] = t[1]
 			bingo.close()
 
@@ -99,22 +101,22 @@ def main ():
 					bestSet.append(set(f))
 		geneIter = 1
 		for t in bestSet:
-			print("Skyline Item Set %d: " % geneIter, end="")
+			out.write("Skyline Item Set %d: " % geneIter, end="")
 			geneIter += 1
 			newT = list(t)
 			niceName = ""
 			for num in newT:
 				niceName += geneList[tuple([num])] + ", "
 			niceName = niceName[:-2]
-			print("{" + niceName + "}", end="")
+			out.write("{" + niceName + "}", end="")
 			counted = curCount[tuple(sorted(tuple(t)))]
-			print(" Support: %.3f" % (counted/46))
-		print("All frequent item sets also contain: ", end="")
+			out.write(" Support: %.3f" % (counted/46))
+		out.write("All frequent item sets also contain: ", end="")
 		finSetName = ""
 		for g in list(Fsave):
 			finSetName += geneList[tuple([g])] + ", "
 		finSetName = finSetName[:-2]
-		print(finSetName)
+		out.write(finSetName)
 		return
 
 	maxSkylines = []
@@ -146,7 +148,7 @@ def main ():
 									finLeft += bakeryCount[tuple([myLHS])] + ", "
 								finLeft = finLeft[:-2]
 								finRight = bakeryCount[tuple(rhs)]
-								print("Rule", r,":", finLeft,"-->",finRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+								out.write("Rule " + str(r) +" : " + str(finLeft) +" --> " +str(finRight) +" Support: %.3f " % supp + "Confidence: %.3f" % conf +'\n')
 
 							if (sys.argv[4] == "authorlist.psv"):
 								findLeft = ""
@@ -154,27 +156,38 @@ def main ():
 									findLeft += bingoCount[tuple([leftSides])] + "; "
 								findLeft = findLeft[:-2]
 								findRight = bingoCount[tuple(rhs)]
-								print("Rule", r,":", findLeft,"-->",findRight,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+								out.write("Rule " + str(r) +" : " + str(findLeft) +" --> " +str(findRight) +" Support: %.3f " % supp + "Confidence: %.4f" % conf +'\n')
 
 						else:
-							print("Rule", r,":", lhs,"-->",rhs,"Support: %.3f" % supp, "Confidence: %.3f" % conf)
+							out.write("Rule " + str(r) +" : " + str(lhs) +" --> " +str(rhs) +" Support: %.3f " % supp + "Confidence: %.4f" % conf +'\n')
 			else:
 				continue
 	printIter = 1;
 	if len(sys.argv) > 4:
 		if(sys.argv[4] == "goods.csv"):
 			for maxSet in maxSkylines:
-				print("Skyline Item Set %d: " % printIter, end="")
+				out.write("Skyline Item Set %d: " % printIter, end="")
 				printIter += 1
-				print("{", end = "")
+				out.write("{", end = "")
 				contents = ""
 				for tup in maxSet:
 					contents += bakeryCount[tuple([tup])] + ", "
-				print(contents[:-2] + "} ", end="")
+				out.write(contents[:-2] + "} ", end="")
 				thisSup = curCount[tuple(sorted(tuple(maxSet)))]/n
-				print("Support: %.3f" % thisSup)
+				out.write("Support: %.3f" % thisSup + '\n')
+		elif (sys.argv[4] == "authorlist.psv"):
+			for maxSet in maxSkylines:
+				out.write("Skyline Item Set %d: " % printIter)
+				printIter += 1
+				out.write("{")
+				contents = ""
+				for tup in maxSet:
+					contents += bingoCount[tuple([tup])] + ", "
+				out.write(contents[:-2] + "} ")
+				thisSup = curCount[tuple(sorted(tuple(maxSet)))]/n
+				out.write("Support: %.3f" % thisSup + '\n')
 	else:
-		print(maxSkylines)
+		out.write(maxSkylines)
 	return
 
 
