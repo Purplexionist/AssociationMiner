@@ -166,13 +166,13 @@ def main ():
 	if len(sys.argv) > 4:
 		if(sys.argv[4] == "goods.csv"):
 			for maxSet in maxSkylines:
-				out.write("Skyline Item Set %d: " % printIter, end="")
+				out.write("Skyline Item Set %d: " % printIter)
 				printIter += 1
-				out.write("{", end = "")
+				out.write("{")
 				contents = ""
 				for tup in maxSet:
 					contents += bakeryCount[tuple([tup])] + ", "
-				out.write(contents[:-2] + "} ", end="")
+				out.write(contents[:-2] + "} ")
 				thisSup = curCount[tuple(sorted(tuple(maxSet)))]/n
 				out.write("Support: %.3f" % thisSup + '\n')
 		elif (sys.argv[4] == "authorlist.psv"):
