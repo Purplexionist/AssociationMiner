@@ -1,0 +1,46 @@
+Our program is written using python3.
+In to run the program, use python3 assocmine.py <fileName.csv> <minSupport> <minConfidence> <additionalFile>
+The first file must be in sparse vector format. Our program will not run with any other formats.
+Additional file will depend on which file you are reading. For the bakery data set, it is goods.csv.
+For the transcription data set, it is factors.csv. For the authors data set, it is authorlist.psv.
+Example (not our actual minSupport and minConfidence): python 3 assocmine.py 1000-out1.csv 0.05 0.9 goods.csv
+Enter a minConfidence for when computing the transcription data set, but it will not actually be taken in to account because
+the transcription data set does not create association rules.
+
+Running the program will create an output file that takes fileName and appends .out to it.
+
+Extended Bakery: 
+
+We ran 1000-out1.csv with minSupport 0.025 and minConfidence 0.9
+Command: python3 assocmine.py 1000-out1.csv .025 .9 goods.csv
+
+We ran 5000-out1.csv with minSupport 0.025 and minConfidence 0.9
+Command: python3 assocmine.py 5000-out1.csv .025 .9 goods.csv
+
+We ran 20000-out1.csv with minSupport 0.025 and minConfidence 0.9
+Command: python3 assocmine.py 20000-out1.csv .025 .9 goods.csv
+
+We ran 75000-out1.csv with minSupport 0.025 and minConfidence 0.9
+Command: python3 assocmine.py 75000-out1.csv .025 .9 goods.csv
+
+We selected a minSupport of 0.025 because it generated around 10 to 15 length 2 or greater skyline sets and 
+0.9 because that created around 20 rules for each file.
+
+
+Bingo Baskets:
+
+we ran bingoBaskets.csv with minSupport 0.1 and minConfidence 0.5
+Command: python3 assocmine.py bingoBaskets.csv 0.1 0.5 authorlist.psv
+
+We selected minSupport of 0.1 to eliminate low support skyline sets and we selected minConfidence 0.5 to generate around
+10-20 association rules.
+
+Trasncription Data:
+
+We ran factor_basket_sparse.csv with minSupport 0.93 and a random minConfidence.
+Command: python3 assocmine.py factor_baskets_sparse.csv 0.93 0.5 factors.csv
+
+We selected 0.93 to generate around 30 skyline item sets. The output file also contains genes that were present in every piece
+of DNA. We did not include them in the other skyline item sets because it would be hard to read.
+Also, when we calculated the skyline item sets for the transcription data, we saved all genes that appeared
+in all market baskets and did not include them in the apriori algorithm. This allowed the apriori algorithm to finish.
