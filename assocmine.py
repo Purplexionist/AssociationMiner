@@ -23,8 +23,9 @@ def main ():
 	geneList = {}
 	bingoCount = {}
 	if len(sys.argv) > 4:
-		outputName = str(sys.argv[4][:-4] + ".out")
+		outputName = str(sys.argv[1][:-4] + ".out")
 		out = open(outputName, "w")
+
 		if(sys.argv[4] == "goods.csv"):
 			j = open(sys.argv[4], "r")
 			goodLines = j.readlines()
@@ -101,17 +102,17 @@ def main ():
 					bestSet.append(set(f))
 		geneIter = 1
 		for t in bestSet:
-			out.write("Skyline Item Set %d: " % geneIter, end="")
+			out.write("Skyline Item Set %d: " % geneIter)
 			geneIter += 1
 			newT = list(t)
 			niceName = ""
 			for num in newT:
 				niceName += geneList[tuple([num])] + ", "
 			niceName = niceName[:-2]
-			out.write("{" + niceName + "}", end="")
+			out.write("{" + niceName + "}")
 			counted = curCount[tuple(sorted(tuple(t)))]
-			out.write(" Support: %.3f" % (counted/46))
-		out.write("All frequent item sets also contain: ", end="")
+			out.write(" Support: %.3f" % (counted/46) + '\n')
+		out.write("All frequent item sets also contain: ")
 		finSetName = ""
 		for g in list(Fsave):
 			finSetName += geneList[tuple([g])] + ", "

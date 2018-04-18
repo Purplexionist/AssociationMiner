@@ -12,7 +12,7 @@ the transcription data set does not create association rules.
 
 Running the program will create an output file that takes fileName and appends .out to it.
 
-Extended Bakery: 
+Extended Bakery:
 
 We ran 1000-out1.csv with minSupport 0.025 and minConfidence 0.9
 Command: python3 assocmine.py 1000-out1.csv .025 .9 goods.csv
@@ -26,7 +26,7 @@ Command: python3 assocmine.py 20000-out1.csv .025 .9 goods.csv
 We ran 75000-out1.csv with minSupport 0.025 and minConfidence 0.9
 Command: python3 assocmine.py 75000-out1.csv .025 .9 goods.csv
 
-We selected a minSupport of 0.025 because it generated around 10 to 15 length 2 or greater skyline sets and 
+We selected a minSupport of 0.025 because it generated around 10 to 15 length 2 or greater skyline sets and
 0.9 because that created around 20 rules for each file.
 
 
