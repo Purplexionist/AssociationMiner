@@ -1,3 +1,5 @@
+William Eggert, Steven Liu, Alex Braksator
+
 Our program is written using python3.
 In to run the program, use python3 assocmine.py <fileName.csv> <minSupport> <minConfidence> <additionalFile>
 The first file must be in sparse vector format. Our program will not run with any other formats.
