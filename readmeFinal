@@ -1,8 +1,9 @@
 William Eggert, Steven Liu, Alex Braksator
 
 Our program is written using python3.
-In to run the program, use python3 assocmine.py <fileName.csv> <minSupport> <minConfidence> <additionalFile>
+In order to run the program, use python3 assocmine.py <fileName.csv> <minSupport> <minConfidence> <additionalFile>
 The first file must be in sparse vector format. Our program will not run with any other formats.
+
 Additional file will depend on which file you are reading. For the bakery data set, it is goods.csv.
 For the transcription data set, it is factors.csv. For the authors data set, it is authorlist.psv.
 Example (not our actual minSupport and minConfidence): python 3 assocmine.py 1000-out1.csv 0.05 0.9 goods.csv
